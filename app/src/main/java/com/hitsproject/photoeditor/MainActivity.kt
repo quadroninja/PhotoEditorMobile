@@ -31,12 +31,6 @@ class MainActivity : AppCompatActivity() {
         if (bitmap != null) {
             val imageView = findViewById<ImageView>(R.id.ViewImage)
             imageView.setImageBitmap(bitmap)
-            imageView.setLayoutParams(
-                ViewGroup.LayoutParams (
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-            )
         }
     }
 }

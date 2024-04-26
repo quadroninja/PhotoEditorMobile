@@ -34,15 +34,17 @@
 
     <ImageView
         android:id="@+id/ViewImage"
-        android:layout_width="401dp"
-        android:layout_height="603dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
         android:layout_gravity="center"
+        android:foregroundGravity="center"
         android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.761" />
+        app:layout_constraintVertical_bias="0.617" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
