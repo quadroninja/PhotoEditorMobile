@@ -12,7 +12,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var photoPicker: PhotoPicker
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         val button = findViewById<FloatingActionButton>(R.id.AddPhoto)
         button.setOnClickListener() {
-            photoPicker.pickPhoto()
+            photoPicker.pickPhotoDialog(this)
         }
     }
 
