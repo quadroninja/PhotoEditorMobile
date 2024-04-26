@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -25,27 +27,12 @@ class PhotoPicker(private val activity: AppCompatActivity) {
     private val REQUEST_CAMERA_PERMISSION = 789
     private val REQUEST_IMAGE_PERMISSION = 987
     private val REQUEST_MEDIA_PERMISSION = 765
-    private val REQUEST_MANAGE_STORAGE_PERMISSION = 543
+    private val REQUEST_MANAGE_STORAGE_PERMISSION = 654
     private val REQUEST_WRITE_STORAGE_PERMISSION = 321
 
     private var bitmap: Bitmap? = null
     private var photoUri: Uri? = null
 
-    private fun requestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                intent.data = Uri.parse("package:${activity.packageName}")
-                activity.startActivityForResult(intent, REQUEST_MANAGE_STORAGE_PERMISSION)
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_WRITE_STORAGE_PERMISSION
-            )
-        }
-    }
     fun showToast(message: String, context: Context) {
         val duration: Int = Toast.LENGTH_SHORT
         Toast.makeText(context, message, duration).show()
@@ -53,43 +40,6 @@ class PhotoPicker(private val activity: AppCompatActivity) {
 
     fun pickPhotoDialog(context: Context) {
         requestStoragePermission()
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                android.Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(android.Manifest.permission.CAMERA),
-                REQUEST_CAMERA_PERMISSION
-            )
-        }
-
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                android.Manifest.permission.READ_MEDIA_IMAGES
-            ) != PackageManager.PERMISSION_GRANTED
-            && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
-                REQUEST_IMAGE_PERMISSION
-            )
-        }
-
-        if (ContextCompat.checkSelfPermission(
-                activity,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-            && android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
-        ) {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_MEDIA_PERMISSION
-            )
-        }
 
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Выберите источник фото")
@@ -129,17 +79,53 @@ class PhotoPicker(private val activity: AppCompatActivity) {
         if (requestCode == REQUEST_IMAGE_PICK && resultCode == Activity.RESULT_OK && data != null) {
             val uri = data.data
             bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, uri)
-            return bitmap
+            return rotateBitmapIfNeeded(bitmap)
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            // Изображение сохранено по указанному URI
             val imageUri = photoUri
             return try {
-                MediaStore.Images.Media.getBitmap(activity.contentResolver, imageUri)
+                val bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, imageUri)
+                rotateBitmapIfNeeded(bitmap)
             } catch (e: IOException) {
                 e.printStackTrace()
                 null
             }
         }
         return null
+    }
+
+    private fun rotateBitmapIfNeeded(bitmap: Bitmap?): Bitmap? {
+        if (bitmap == null) return null
+
+        val exif = ExifInterface(activity.contentResolver.openInputStream(photoUri!!)!!)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+        return when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
+            else -> bitmap
+        }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees.toFloat())
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    private fun requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                intent.data = Uri.parse("package:${activity.packageName}")
+                activity.startActivityForResult(intent, REQUEST_MANAGE_STORAGE_PERMISSION)
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_WRITE_STORAGE_PERMISSION
+            )
+        }
     }
 }
