@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -62,15 +63,23 @@ class PhotoPicker(private val activity: AppCompatActivity) {
             }
         }
         builder.setNegativeButton("Камера") { _, _ ->
-            val file = File(Environment.getExternalStorageDirectory(), "image.jpg")
-            photoUri = FileProvider.getUriForFile(
-                activity,
-                "${activity.packageName}.fileprovider",
-                file
-            )
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-            activity.startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            if (ContextCompat.checkSelfPermission(
+                    activity,
+                    android.Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                val file = File(Environment.getExternalStorageDirectory(), "image.jpg")
+                photoUri = FileProvider.getUriForFile(
+                    activity,
+                    "${activity.packageName}.fileprovider",
+                    file
+                )
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                activity.startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            } else {
+                this.showToast("Нет разрешения. Выдайте разрешение к камере в настройках.", context)
+            }
         }
         builder.show()
     }
@@ -86,7 +95,7 @@ class PhotoPicker(private val activity: AppCompatActivity) {
                 val bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, imageUri)
                 rotateBitmapIfNeeded(bitmap)
             } catch (e: IOException) {
-                e.printStackTrace()
+                Log.e("PhotoPicker", "Error getting bitmap from captured image", e)
                 null
             }
         }
@@ -94,16 +103,21 @@ class PhotoPicker(private val activity: AppCompatActivity) {
     }
 
     private fun rotateBitmapIfNeeded(bitmap: Bitmap?): Bitmap? {
-        if (bitmap == null) return null
+        if (bitmap == null || photoUri == null) return bitmap
 
-        val exif = ExifInterface(activity.contentResolver.openInputStream(photoUri!!)!!)
-        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+        return try {
+            val exif = ExifInterface(activity.contentResolver.openInputStream(photoUri!!)!!)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 
-        return when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
-            else -> bitmap
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
+                else -> bitmap
+            }
+        } catch (e: IOException) {
+            Log.e("PhotoPicker", "Error rotating bitmap", e)
+            bitmap
         }
     }
 
