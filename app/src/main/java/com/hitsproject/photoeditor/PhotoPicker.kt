@@ -34,7 +34,7 @@ class PhotoPicker(private val activity: AppCompatActivity) {
     private var bitmap: Bitmap? = null
     private var photoUri: Uri? = null
 
-    fun showToast(message: String, context: Context) {
+    private fun showToast(message: String, context: Context) {
         val duration: Int = Toast.LENGTH_SHORT
         Toast.makeText(context, message, duration).show()
     }
@@ -59,7 +59,7 @@ class PhotoPicker(private val activity: AppCompatActivity) {
                     Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
                 activity.startActivityForResult(intent, REQUEST_IMAGE_PICK)
             } else {
-                this.showToast("Нет разрешения. Выдайте разрешение к фото в настройках.", context)
+                requestImagePermission()
             }
         }
         builder.setNegativeButton("Камера") { _, _ ->
@@ -78,7 +78,7 @@ class PhotoPicker(private val activity: AppCompatActivity) {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
                 activity.startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
             } else {
-                this.showToast("Нет разрешения. Выдайте разрешение к камере в настройках.", context)
+                requestCameraPermission()
             }
         }
         builder.show()
@@ -140,6 +140,45 @@ class PhotoPicker(private val activity: AppCompatActivity) {
                 arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 REQUEST_WRITE_STORAGE_PERMISSION
             )
+        }
+    }
+
+    private fun requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                android.Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(android.Manifest.permission.CAMERA),
+                REQUEST_CAMERA_PERMISSION
+            )
+        } else {
+            this.showToast("Нет разрешения. Выдайте разрешение к камере в настройках.", activity)
+        }
+    }
+
+    private fun requestImagePermission() {
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+            && ContextCompat.checkSelfPermission(
+                activity,
+                android.Manifest.permission.READ_MEDIA_IMAGES
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.READ_MEDIA_IMAGES
+                ),
+                REQUEST_IMAGE_PERMISSION
+            )
+        } else {
+            this.showToast("Нет разрешения. Выдайте разрешение к фото в настройках.", activity)
         }
     }
 }
