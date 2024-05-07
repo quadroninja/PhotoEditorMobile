@@ -9,4 +9,9 @@
         android:id="@+id/bw"
         android:icon="@drawable/ic_bw"
         android:title="@string/navigation_hdr" />
+
+    <item
+        android:id="@+id/sepia"
+        android:icon="@drawable/ic_bw"
+        android:title="@string/navigation_sepia" />
 </menu>
