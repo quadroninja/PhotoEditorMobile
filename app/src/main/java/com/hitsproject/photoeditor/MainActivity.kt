@@ -51,7 +51,23 @@ class MainActivity : AppCompatActivity() {
                     imageView.setImageBitmap(image)
                     true
                 }
+                R.id.navigation_rotate ->
+                {
+                    image = process.rotate(image, 0.1)
+                    photoPicker.setBitmap(image)
+                    val imageView = findViewById<ImageView>(R.id.ViewImage)
+                    imageView.setImageBitmap(image)
+                    true
+                }
+                R.id.navigation_resize ->
+                {
+                    image = process.resize(image, 0.2, 0.2)
+                    photoPicker.setBitmap(image)
+                    val imageView = findViewById<ImageView>(R.id.ViewImage)
+                    imageView.setImageBitmap(image)
+                    true
 
+                }
                 else -> false
             }
         }
