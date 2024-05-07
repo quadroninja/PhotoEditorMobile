@@ -32,14 +32,14 @@ class PhotoPicker(private val activity: AppCompatActivity) {
         WRITE_STORAGE_PERMISSION
     }
 
-    private var bitmap: Bitmap? = null
+    private var bitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     private var photoUri: Uri? = null
 
-    fun getBitmap(): Bitmap? {
+    fun getBitmap(): Bitmap {
         return bitmap
     }
 
-    fun setBitmap(bitmap: Bitmap?) {
+    fun setBitmap(bitmap: Bitmap) {
         this.bitmap = bitmap
     }
 
@@ -69,48 +69,52 @@ class PhotoPicker(private val activity: AppCompatActivity) {
         builder.show()
     }
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Bitmap? {
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Bitmap {
         return when (requestCode) {
             RequestCode.IMAGE_PICK.ordinal -> handleImagePick(resultCode, data)
             RequestCode.IMAGE_CAPTURE.ordinal -> handleImageCapture(resultCode)
-            else -> null
+            else -> bitmap
         }
     }
 
-    private fun handleImagePick(resultCode: Int, data: Intent?): Bitmap? {
+    private fun handleImagePick(resultCode: Int, data: Intent?): Bitmap {
         return if (resultCode == Activity.RESULT_OK && data != null) {
             val uri = data.data
             val bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, uri)
             rotateBitmapIfNeeded(bitmap)
         } else {
-            null
+            bitmap
         }
     }
 
-    private fun handleImageCapture(resultCode: Int): Bitmap? {
+    private fun handleImageCapture(resultCode: Int): Bitmap {
         return if (resultCode == Activity.RESULT_OK && photoUri != null) {
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, photoUri)
                 rotateBitmapIfNeeded(bitmap)
             } catch (e: IOException) {
                 Log.e("PhotoPicker", "Error getting bitmap from captured image", e)
-                null
+                bitmap
             }
         } else {
-            null
+            bitmap
         }
     }
 
     private fun rotateBitmapIfNeeded(bitmap: Bitmap): Bitmap {
         return try {
-            val exif = ExifInterface(activity.contentResolver.openInputStream(photoUri!!)!!)
-            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+            if (photoUri != null) {
+                val exif = ExifInterface(activity.contentResolver.openInputStream(photoUri!!)!!)
+                val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 
-            when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
-                else -> bitmap
+                when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
+                    else -> bitmap
+                }
+            } else {
+                bitmap
             }
         } catch (e: IOException) {
             Log.e("PhotoPicker", "Error rotating bitmap", e)

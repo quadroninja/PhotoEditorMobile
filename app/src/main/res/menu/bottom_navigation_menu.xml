@@ -4,4 +4,9 @@
         android:id="@+id/navigation_rotate"
         android:icon="@drawable/ic_rotate"
         android:title="@string/rotate_name" />
+
+    <item
+        android:id="@+id/hdr"
+        android:icon="@drawable/ic_hdr"
+        android:title="@string/navigation_hdr" />
 </menu>

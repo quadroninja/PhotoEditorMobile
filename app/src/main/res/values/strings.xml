@@ -2,4 +2,5 @@
     <string name="app_name">PhotoEditor</string>
     <string name="head_first_page">Photo Picker</string>
     <string name="rotate_name">Повернуть</string>
+    <string name="navigation_hdr">HDR</string>
 </resources>
