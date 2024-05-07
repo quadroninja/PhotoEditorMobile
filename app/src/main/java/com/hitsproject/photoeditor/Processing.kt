@@ -12,34 +12,21 @@ import kotlin.random.Random
 
 class Processing {
     fun applyBlackAndWhiteFilter(image: Bitmap): Bitmap {
-        val width = image.width
-        val height = image.height
-        val pixels = IntArray(width * height)
-
-        image.getPixels(pixels, 0, width, 0, 0, width, height)
+        val pixels = IntArray(image.width * image.height)
+        image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
 
         for (i in pixels.indices) {
             val pixel = pixels[i]
-            val red = Color.red(pixel)
-            val green = Color.green(pixel)
-            val blue = Color.blue(pixel)
-
-            val average = (red + green + blue) / 3
+            val average = (Color.red(pixel) + Color.green(pixel) + Color.blue(pixel)) / 3
             pixels[i] = Color.rgb(average, average, average)
         }
 
-        val filteredBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        filteredBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-
-        return filteredBitmap
+        return Bitmap.createBitmap(pixels, image.width, image.height, Bitmap.Config.ARGB_8888)
     }
 
     fun applySepiaFilter(image: Bitmap): Bitmap {
-        val width = image.width
-        val height = image.height
-        val pixels = IntArray(width * height)
-
-        image.getPixels(pixels, 0, width, 0, 0, width, height)
+        val pixels = IntArray(image.width * image.height)
+        image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
 
         for (i in pixels.indices) {
             val pixel = pixels[i]
@@ -52,20 +39,13 @@ class Processing {
             val blueSepiaValue = (red * 0.272 + green * 0.534 + blue * 0.131).toInt()
 
             pixels[i] = Color.rgb(
-                min(redSepiaValue, 255),
-                min(greenSepiaValue, 255),
-                min(blueSepiaValue, 255)
+                minOf(redSepiaValue, 255),
+                minOf(greenSepiaValue, 255),
+                minOf(blueSepiaValue, 255)
             )
         }
 
-        val filteredBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        filteredBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-
-        return filteredBitmap
-    }
-
-    private fun min(value: Int, max: Int): Int {
-        return if (value < 0) 0 else if (value > max) max else value
+        return Bitmap.createBitmap(pixels, image.width, image.height, Bitmap.Config.ARGB_8888)
     }
 
     fun applyNegativeFilter(bitmap: Bitmap): Bitmap {
