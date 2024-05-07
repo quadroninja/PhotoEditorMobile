@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
         val button = findViewById<FloatingActionButton>(R.id.AddPhoto)
         button.setOnClickListener {
-            photoPicker.pickPhotoDialog(this)
+            photoPicker.pickPhoto(this)
         }
 
         val navigation = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
