@@ -32,21 +32,18 @@ class MainActivity : AppCompatActivity() {
             when(item.itemId) {
                 R.id.bw -> {
                     image = process.applyBlackAndWhiteFilter(image)
-                    photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
                 }
                 R.id.sepia -> {
                     image = process.applySepiaFilter(image)
-                    photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
                 }
                 R.id.negative -> {
                     image = process.applyNegativeFilter(image)
-                    photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
@@ -54,7 +51,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_rotate ->
                 {
                     image = process.rotate(image, 0.1)
-                    photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
@@ -62,7 +58,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_resize ->
                 {
                     image = process.resize(image, 0.2, 0.2)
-                    photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
