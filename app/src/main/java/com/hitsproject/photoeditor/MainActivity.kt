@@ -30,8 +30,8 @@ class MainActivity : AppCompatActivity() {
         val navigation = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         navigation.setOnNavigationItemSelectedListener { item ->
             when(item.itemId) {
-                R.id.hdr -> {
-                    image = process.applyHDRToImage(image)
+                R.id.bw -> {
+                    image = process.applyBlackAndWhiteFilter(image)
                     photoPicker.setBitmap(image)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)

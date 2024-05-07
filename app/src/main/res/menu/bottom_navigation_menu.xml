@@ -6,7 +6,7 @@
         android:title="@string/rotate_name" />
 
     <item
-        android:id="@+id/hdr"
-        android:icon="@drawable/ic_hdr"
+        android:id="@+id/bw"
+        android:icon="@drawable/ic_bw"
         android:title="@string/navigation_hdr" />
 </menu>
