@@ -44,6 +44,13 @@ class MainActivity : AppCompatActivity() {
                     imageView.setImageBitmap(image)
                     true
                 }
+                R.id.negative -> {
+                    image = process.applyNegativeFilter(image)
+                    photoPicker.setBitmap(image)
+                    val imageView = findViewById<ImageView>(R.id.ViewImage)
+                    imageView.setImageBitmap(image)
+                    true
+                }
 
                 else -> false
             }

@@ -1,7 +1,11 @@
 package com.hitsproject.photoeditor
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
@@ -35,22 +39,18 @@ class Processing {
         val height = image.height
         val pixels = IntArray(width * height)
 
-        // Получаем пиксели изображения в виде массива
         image.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        // Применяем фильтр к пикселям
         for (i in pixels.indices) {
             val pixel = pixels[i]
             val red = Color.red(pixel)
             val green = Color.green(pixel)
             val blue = Color.blue(pixel)
 
-            // Вычисляем новые значения RGB для эффекта сепии
             val redSepiaValue = (red * 0.393 + green * 0.769 + blue * 0.189).toInt()
             val greenSepiaValue = (red * 0.349 + green * 0.686 + blue * 0.168).toInt()
             val blueSepiaValue = (red * 0.272 + green * 0.534 + blue * 0.131).toInt()
 
-            // Ограничиваем значения RGB в диапазоне 0-255
             pixels[i] = Color.rgb(
                 min(redSepiaValue, 255),
                 min(greenSepiaValue, 255),
@@ -58,7 +58,6 @@ class Processing {
             )
         }
 
-        // Создаем новое отфильтрованное изображение
         val filteredBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         filteredBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
 
@@ -67,5 +66,26 @@ class Processing {
 
     private fun min(value: Int, max: Int): Int {
         return if (value < 0) 0 else if (value > max) max else value
+    }
+
+    fun applyNegativeFilter(bitmap: Bitmap): Bitmap {
+        val editedBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+
+        val colorMatrix = ColorMatrix(
+            floatArrayOf(
+                -1f, 0f, 0f, 0f, 255f,
+                0f, -1f, 0f, 0f, 255f,
+                0f, 0f, -1f, 0f, 255f,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+
+        val paint = Paint()
+        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+
+        val canvas = Canvas(editedBitmap)
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+
+        return editedBitmap
     }
 }

@@ -14,4 +14,9 @@
         android:id="@+id/sepia"
         android:icon="@drawable/ic_bw"
         android:title="@string/navigation_sepia" />
+
+    <item
+        android:id="@+id/negative"
+        android:icon="@drawable/ic_bw"
+        android:title="@string/navigation_negative"/>
 </menu>
