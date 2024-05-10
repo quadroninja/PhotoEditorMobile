@@ -6,9 +6,14 @@ import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import kotlinx.coroutines.Dispatchers
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 
 class Processing {
     fun resize(image: Bitmap, scaleCoefX: Double, scaleCoefY: Double) : Bitmap
@@ -155,5 +160,80 @@ class Processing {
         canvas.drawBitmap(bitmap, 0f, 0f, paint)
 
         return editedBitmap
+    }
+
+    fun unsharpMask(bitmap: Bitmap, amount: Float = 0.6f): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val blurredPixels = IntArray(width * height)
+        val tempPixels = IntArray(width * height)
+
+        // Размытие изображения в параллельном режиме
+        runBlocking {
+            (0 until height).chunked(4).map { rows ->
+                async(Dispatchers.Default) {
+                    for (y in rows) {
+                        for (x in 0 until width) {
+                            var r = 0
+                            var g = 0
+                            var b = 0
+                            var count = 0
+                            for (dy in -1..1) {
+                                for (dx in -1..1) {
+                                    val xx = x + dx
+                                    val yy = y + dy
+                                    if (xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                                        val pixel = pixels[yy * width + xx]
+                                        r += Color.red(pixel)
+                                        g += Color.green(pixel)
+                                        b += Color.blue(pixel)
+                                        count++
+                                    }
+                                }
+                            }
+                            blurredPixels[y * width + x] =
+                                Color.rgb(r / count, g / count, b / count)
+                        }
+                    }
+                }
+            }.awaitAll()
+        }
+
+        // Нерезкое маскирование в параллельном режиме
+        runBlocking {
+            (0 until height).chunked(4).map { rows ->
+                async(Dispatchers.Default) {
+                    for (y in rows) {
+                        for (x in 0 until width) {
+                            val originalPixel = pixels[y * width + x]
+                            val blurredPixel = blurredPixels[y * width + x]
+                            val r =
+                                (Color.red(originalPixel) + amount * (Color.red(originalPixel) - Color.red(
+                                    blurredPixel
+                                ))).toInt()
+                            val g =
+                                (Color.green(originalPixel) + amount * (Color.green(originalPixel) - Color.green(
+                                    blurredPixel
+                                ))).toInt()
+                            val b =
+                                (Color.blue(originalPixel) + amount * (Color.blue(originalPixel) - Color.blue(
+                                    blurredPixel
+                                ))).toInt()
+                            tempPixels[y * width + x] = Color.rgb(
+                                abs(r.coerceIn(0, 255)),
+                                abs(g.coerceIn(0, 255)),
+                                abs(b.coerceIn(0, 255))
+                            )
+                        }
+                    }
+                }
+            }.awaitAll()
+        }
+        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        result.setPixels(tempPixels, 0, width, 0, 0, width, height)
+        return result
     }
 }

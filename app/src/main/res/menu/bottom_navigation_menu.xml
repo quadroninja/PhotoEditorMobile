@@ -18,8 +18,13 @@
         android:icon="@drawable/ic_bw"
         android:title="@string/navigation_sepia" />
 
-    <item
+    <!--<item
         android:id="@+id/negative"
         android:icon="@drawable/ic_bw"
-        android:title="@string/navigation_negative"/>
+        android:title="@string/navigation_negative"/> -->
+
+    <item
+        android:id="@+id/unsharp_mask"
+        android:icon="@drawable/ic_bw"
+        android:title="@string/unsharp_mask" />
 </menu>

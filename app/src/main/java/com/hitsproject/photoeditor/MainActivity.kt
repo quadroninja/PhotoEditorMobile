@@ -42,12 +42,12 @@ class MainActivity : AppCompatActivity() {
                     imageView.setImageBitmap(image)
                     true
                 }
-                R.id.negative -> {
-                    image = process.applyNegativeFilter(image)
-                    val imageView = findViewById<ImageView>(R.id.ViewImage)
-                    imageView.setImageBitmap(image)
-                    true
-                }
+                //R.id.negative -> {
+                    //image = process.applyNegativeFilter(image)
+                    //val imageView = findViewById<ImageView>(R.id.ViewImage)
+                    //imageView.setImageBitmap(image)
+                    //true
+                //}
                 R.id.navigation_rotate ->
                 {
                     image = process.rotate(image, 0.1)
@@ -62,6 +62,13 @@ class MainActivity : AppCompatActivity() {
                     imageView.setImageBitmap(image)
                     true
 
+                }
+                R.id.unsharp_mask ->
+                {
+                    image = process.unsharpMask(image)
+                    val imageView = findViewById<ImageView>(R.id.ViewImage)
+                    imageView.setImageBitmap(image)
+                    true
                 }
                 else -> false
             }

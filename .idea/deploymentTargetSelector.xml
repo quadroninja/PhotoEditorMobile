@@ -2,15 +2,12 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="Unnamed">
+      <SelectionState runConfigName="Photo Editor">
         <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-05-07T18:03:47.942226900Z">
+        <DropdownSelection timestamp="2024-05-10T08:47:38.144843400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\mgher\.android\avd\New_Device_API_29.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\denis\.android\avd\Pixel_2_API_34.avd" />
             </handle>
           </Target>
         </DropdownSelection>
