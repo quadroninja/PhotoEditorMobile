@@ -6,6 +6,10 @@ import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import androidx.core.graphics.alpha
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import kotlinx.coroutines.Dispatchers
 import kotlin.math.abs
 import kotlin.math.cos
@@ -14,52 +18,116 @@ import kotlin.math.sin
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import android.util.Log
 
 class Processing {
-    fun resize(image: Bitmap, scaleCoefX: Double, scaleCoefY: Double) : Bitmap
-    {
-        val pixelArray = IntArray(image.height * image.width)
-        val out = IntArray(image.height * image.width) {0xFF000000.toInt()}
-        image.getPixels(pixelArray, 0, image.width, 0, 0, image.width, image.height)
+    fun resize(bitmap: Bitmap, coefficient: Double): Bitmap {
+        val width = (bitmap.width * coefficient).toInt()
+        val height = (bitmap.height * coefficient).toInt()
+        val newBitmap = Bitmap.createBitmap(width, height, bitmap.config)
 
-        for (i in 0 until image.height)
-        {
-            for (j in 0 until image.width)
-            {
-                val index = i * image.width + j
-                val v: Double = i * scaleCoefY
-                val u: Double = j * scaleCoefX
-                val y: Int = floor(v).toInt()
-                val x: Int = floor(u).toInt()
-                val uRatio: Double = u - x
-                val vRatio: Double = v - y
-                val uOpposite: Double = 1.0 - uRatio
-                val vOpposite: Double = 1.0 - vRatio
+        runBlocking {
+            withContext(Dispatchers.Default) {
+                (0 until width).chunked(4).forEach { xRange ->
+                    xRange.forEach { x ->
+                        (0 until height).forEach { y ->
+                            val xCoefficient = x.toDouble() / width * (bitmap.width - 1)
+                            val yCoefficient = y.toDouble() / height * (bitmap.height - 1)
 
-                val ind00 = y * image.width + x
-                val ind01 = y * image.width + (x + 1)
-                val ind10 = (y + 1) * image.width + x
-                val ind11 = (y + 1) * image.width + (x + 1)
+                            val x1 = xCoefficient.toInt()
+                            val y1 = yCoefficient.toInt()
+                            val x2 = if (x1 == bitmap.width - 1) x1 else x1 + 1
+                            val y2 = if (y1 == bitmap.height - 1) y1 else y1 + 1
 
-                if (y >= 0 && y + 1 < image.height && x >= 0 && x + 1 < image.width)
-                {
-                    val result = Color.rgb(
-                        ((Color.red(pixelArray[ind00]) * uOpposite + Color.red(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.red(pixelArray[ind10]) * uOpposite + Color.red(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                        ((Color.green(pixelArray[ind00]) * uOpposite + Color.green(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.green(pixelArray[ind10]) * uOpposite + Color.green(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                        ((Color.blue(pixelArray[ind00]) * uOpposite + Color.blue(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.blue(pixelArray[ind10]) * uOpposite + Color.blue(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                    )
+                            val color1 = bitmap.getPixel(x1, y1)
+                            val color2 = bitmap.getPixel(x2, y1)
+                            val color3 = bitmap.getPixel(x1, y2)
+                            val color4 = bitmap.getPixel(x2, y2)
 
-                    out[index] = result
+                            val red = if (coefficient > 1.0) {
+                                (
+                                        (color1.red * (x2 - xCoefficient) * (y2 - yCoefficient) +
+                                                color2.red * (xCoefficient - x1) * (y2 - yCoefficient) +
+                                                color3.red * (x2 - xCoefficient) * (yCoefficient - y1) +
+                                                color4.red * (xCoefficient - x1) * (yCoefficient - y1)) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            } else {
+                                (
+                                        (color1.red * (1.0 - (xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color2.red * ((xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color3.red * (1.0 - (xCoefficient - x1)) * ((yCoefficient - y1)) +
+                                                color4.red * ((xCoefficient - x1)) * ((yCoefficient - y1))) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            }
+
+                            val green = if (coefficient > 1.0) {
+                                (
+                                        (color1.green * (x2 - xCoefficient) * (y2 - yCoefficient) +
+                                                color2.green * (xCoefficient - x1) * (y2 - yCoefficient) +
+                                                color3.green * (x2 - xCoefficient) * (yCoefficient - y1) +
+                                                color4.green * (xCoefficient - x1) * (yCoefficient - y1)) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            } else {
+                                (
+                                        (color1.green * (1.0 - (xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color2.green * ((xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color3.green * (1.0 - (xCoefficient - x1)) * ((yCoefficient - y1)) +
+                                                color4.green * ((xCoefficient - x1)) * ((yCoefficient - y1))) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            }
+
+                            val blue = if (coefficient > 1.0) {
+                                (
+                                        (color1.blue * (x2 - xCoefficient) * (y2 - yCoefficient) +
+                                                color2.blue * (xCoefficient - x1) * (y2 - yCoefficient) +
+                                                color3.blue * (x2 - xCoefficient) * (yCoefficient - y1) +
+                                                color4.blue * (xCoefficient - x1) * (yCoefficient - y1)) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            } else {
+                                (
+                                        (color1.blue * (1.0 - (xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color2.blue * ((xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color3.blue * (1.0 - (xCoefficient - x1)) * ((yCoefficient - y1)) +
+                                                color4.blue * ((xCoefficient - x1)) * ((yCoefficient - y1))) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            }
+
+                            val alpha = if (coefficient > 1.0) {
+                                (
+                                        (color1.alpha * (x2 - xCoefficient) * (y2 - yCoefficient) +
+                                                color2.alpha * (xCoefficient - x1) * (y2 - yCoefficient) +
+                                                color3.alpha * (x2 - xCoefficient) * (yCoefficient - y1) +
+                                                color4.alpha * (xCoefficient - x1) * (yCoefficient - y1)) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            } else {
+                                (
+                                        (color1.alpha * (1.0 - (xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color2.alpha * ((xCoefficient - x1)) * (1.0 - (yCoefficient - y1)) +
+                                                color3.alpha * (1.0 - (xCoefficient - x1)) * ((yCoefficient - y1)) +
+                                                color4.alpha * ((xCoefficient - x1)) * ((yCoefficient - y1))) /
+                                                ((x2 - x1) * (y2 - y1))
+                                        ).toInt()
+                            }
+
+                            newBitmap.setPixel(x, y, Color.argb(alpha, red, green, blue))
+                        }
+                    }
                 }
             }
         }
-        val resizedImage = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
-        resizedImage.setPixels(out, 0, image.width, 0, 0, image.width, image.height)
-        return resizedImage
+
+        Log.d("Resize","Resizing bitmap from ${bitmap.width}x${bitmap.height} to ${width}x$height")
+        return newBitmap
     }
+
     fun rotate(image: Bitmap, angle: Double) : Bitmap
     {
         val pixelArray = IntArray(image.height * image.width)
