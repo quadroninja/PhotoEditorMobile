@@ -13,13 +13,14 @@ import androidx.core.graphics.red
 import kotlinx.coroutines.Dispatchers
 import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.floor
+import kotlin.math.ceil
 import kotlin.math.sin
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import android.util.Log
+import kotlinx.coroutines.*
 
 class Processing {
     fun resize(bitmap: Bitmap, coefficient: Double): Bitmap {
@@ -128,50 +129,50 @@ class Processing {
         return newBitmap
     }
 
-    fun rotate(image: Bitmap, angle: Double) : Bitmap
-    {
-        val pixelArray = IntArray(image.height * image.width)
-        val out = IntArray(image.height * image.width) {0xFF000000.toInt()}
-        image.getPixels(pixelArray, 0, image.width, 0, 0, image.width, image.height)
+    fun rotate(image: Bitmap, angle: Double): Bitmap {
+        val width = image.width
+        val height = image.height
+        val centerX = width / 2
+        val centerY = height / 2
 
-        for (i in 0 until image.height)
-        {
-            for (j in 0 until image.width)
-            {
-                val index = i * image.width + j
-                val v: Double = -j * sin(angle) + i * cos(angle)
-                val u: Double = j * cos(angle) + i * sin(angle)
-                val y: Int = floor(v).toInt()
-                val x: Int = floor(u).toInt()
-                val uRatio: Double = u - x
-                val vRatio: Double = v - y
-                val uOpposite: Double = 1.0 - uRatio
-                val vOpposite: Double = 1.0 - vRatio
+        val radians = Math.toRadians(angle)
 
-                val ind00 = y * image.width + x
-                val ind01 = y * image.width + (x + 1)
-                val ind10 = (y + 1) * image.width + x
-                val ind11 = (y + 1) * image.width + (x + 1)
+        val rotatedWidth = ceil(width * abs(cos(radians)) + height * abs(sin(radians))).toInt()
+        val rotatedHeight = ceil(width * abs(sin(radians)) + height * abs(cos(radians))).toInt()
 
-                if (y >= 0 && y + 1 < image.height && x >= 0 && x + 1 < image.width)
-                {
-                    val result = Color.rgb(
-                        ((Color.red(pixelArray[ind00]) * uOpposite + Color.red(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.red(pixelArray[ind10]) * uOpposite + Color.red(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                        ((Color.green(pixelArray[ind00]) * uOpposite + Color.green(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.green(pixelArray[ind10]) * uOpposite + Color.green(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                        ((Color.blue(pixelArray[ind00]) * uOpposite + Color.blue(pixelArray[ind01]) * uRatio) * vOpposite +
-                                (Color.blue(pixelArray[ind10]) * uOpposite + Color.blue(pixelArray[ind11]) * uRatio) * vRatio).toInt(),
-                    )
+        val rotatedImage = Bitmap.createBitmap(rotatedWidth, rotatedHeight, Bitmap.Config.ARGB_8888)
+        val pixels = IntArray(width * height)
+        image.getPixels(pixels, 0, width, 0, 0, width, height)
 
-                    out[index] = result
+        val cosAngle = cos(radians)
+        val sinAngle = sin(radians)
+
+        runBlocking {
+            coroutineScope {
+                for (y in 0 until rotatedHeight) {
+                    launch {
+                        for (x in 0 until rotatedWidth) {
+                            val dx = x - rotatedWidth / 2
+                            val dy = y - rotatedHeight / 2
+
+                            val srcX = (dx * cosAngle + dy * sinAngle + centerX).toInt()
+                            val srcY = (-dx * sinAngle + dy * cosAngle + centerY).toInt()
+
+                            if (srcX in 0 until width && srcY in 0 until height) {
+                                val index = srcY * width + srcX
+                                rotatedImage.setPixel(x, y, pixels[index])
+                            } else {
+                                rotatedImage.setPixel(x, y, 0)
+                            }
+                        }
+                    }
                 }
             }
         }
-        val rotatedImage = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
-        rotatedImage.setPixels(out, 0, image.width, 0, 0, image.width, image.height)
+
         return rotatedImage
     }
+
     fun applyBlackAndWhiteFilter(image: Bitmap): Bitmap {
         val pixels = IntArray(image.width * image.height)
         image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)

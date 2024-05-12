@@ -50,14 +50,14 @@ class MainActivity : AppCompatActivity() {
                 //}
                 R.id.navigation_rotate ->
                 {
-                    image = process.rotate(image, 2.0)
+                    image = process.rotate(image, 90.0)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
                 }
                 R.id.navigation_resize ->
                 {
-                    image = process.resize(image, 2.0)
+                    image = process.resize(image, 0.1)
                     val imageView = findViewById<ImageView>(R.id.ViewImage)
                     imageView.setImageBitmap(image)
                     true
