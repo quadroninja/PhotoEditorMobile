@@ -2,9 +2,10 @@
     <string name="app_name">PhotoEditor</string>
     <string name="head_first_page">Photo Picker</string>
     <string name="rotate_name">Повернуть</string>
-    <string name="navigation_hdr">Черно-белый</string>
+    <string name="navigation_bw">Черно-белый</string>
     <string name="navigation_sepia">Сепия</string>
     <string name="navigation_negative">Негатив</string>
     <string name="resize_name">Масштабирование</string>
     <string name="unsharp_mask">Маскирование</string>
+    <string name="show_photoeditor">Обработка</string>
 </resources>

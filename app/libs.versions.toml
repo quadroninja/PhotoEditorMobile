@@ -1,0 +1,5 @@
+[versions]
+material = "1.6.1"
+
+[libraries]
+androidx-activity = { module = "androidx.activity:activity", version.ref = "material" }
