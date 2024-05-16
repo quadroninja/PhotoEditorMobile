@@ -169,7 +169,7 @@ class Processing {
                 }
             }
         }
-
+        Log.d("Rotate"," bitmap from ${image.width}x${image.height} to ${rotatedWidth}x$rotatedHeight")
         return rotatedImage
     }
 
