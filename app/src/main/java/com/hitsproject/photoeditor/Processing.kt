@@ -211,24 +211,22 @@ class Processing {
     }
 
     fun applyNegativeFilter(bitmap: Bitmap): Bitmap {
-        val editedBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+        val width = bitmap.width
+        val height = bitmap.height
+        val negativeImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
-        val colorMatrix = ColorMatrix(
-            floatArrayOf(
-                -1f, 0f, 0f, 0f, 255f,
-                0f, -1f, 0f, 0f, 255f,
-                0f, 0f, -1f, 0f, 255f,
-                0f, 0f, 0f, 1f, 0f
-            )
-        )
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val color = bitmap.getPixel(x, y)
+                val red = 255 - Color.red(color)
+                val green = 255 - Color.green(color)
+                val blue = 255 - Color.blue(color)
+                val newColor = Color.rgb(red, green, blue)
+                negativeImage.setPixel(x, y, newColor)
+            }
+        }
 
-        val paint = Paint()
-        paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
-
-        val canvas = Canvas(editedBitmap)
-        canvas.drawBitmap(bitmap, 0f, 0f, paint)
-
-        return editedBitmap
+        return negativeImage
     }
 
     fun unsharpMask(bitmap: Bitmap, amount: Float = 0.6f): Bitmap {
@@ -240,7 +238,6 @@ class Processing {
         val blurredPixels = IntArray(width * height)
         val tempPixels = IntArray(width * height)
 
-        // Размытие изображения в параллельном режиме
         runBlocking {
             (0 until height).chunked(4).map { rows ->
                 async(Dispatchers.Default) {
@@ -271,7 +268,6 @@ class Processing {
             }.awaitAll()
         }
 
-        // Нерезкое маскирование в параллельном режиме
         runBlocking {
             (0 until height).chunked(4).map { rows ->
                 async(Dispatchers.Default) {

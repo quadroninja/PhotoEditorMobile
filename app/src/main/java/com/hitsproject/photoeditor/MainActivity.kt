@@ -4,13 +4,16 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 lateinit var image: Bitmap
+var isAdded: Boolean = false
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private lateinit var photoPicker: PhotoPicker
     private lateinit var process: Processing
+    private lateinit var resizeSeekBar: SeekBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +41,13 @@ class MainActivity : AppCompatActivity() {
         navigation.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.show_bottom_sheet -> {
-                    showBottomSheetMenu()
-                    true
+                    if (isAdded) {
+                        showBottomSheetMenu()
+                        true
+                    } else {
+                        Toast.makeText(this, getString(R.string.image_not_added), Toast.LENGTH_SHORT).show()
+                        true
+                    }
                 }
                 else -> false
             }
@@ -98,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         val bitmap = photoPicker.onActivityResult(requestCode, resultCode, data)
         image = bitmap
+        isAdded = true
         updateImageView()
     }
 }

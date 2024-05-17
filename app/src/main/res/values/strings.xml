@@ -8,4 +8,5 @@
     <string name="resize_name">Масштабирование</string>
     <string name="unsharp_mask">Маскирование</string>
     <string name="show_photoeditor">Обработка</string>
+    <string name="image_not_added">Изображение не добавлено или добавлено некорректно.</string>
 </resources>
