@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.ImageView
-import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private lateinit var photoPicker: PhotoPicker
     private lateinit var process: Processing
-    private lateinit var resizeSeekBar: SeekBar
+    private lateinit var save: ImageSaver
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,10 +29,16 @@ class MainActivity : AppCompatActivity() {
 
         photoPicker = PhotoPicker(this)
         process = Processing()
+        save = ImageSaver()
 
         val addPhotoButton = findViewById<FloatingActionButton>(R.id.AddPhoto)
         addPhotoButton.setOnClickListener {
-            photoPicker.pickPhoto(this)
+            if (!isAdded) photoPicker.pickPhoto(this)
+            else {
+                isAdded = false
+                save.saveImageToDevice(this, image, "newImage")
+                photoPicker.pickPhoto(this)
+            }
         }
 
         val navigation = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -45,7 +51,11 @@ class MainActivity : AppCompatActivity() {
                         showBottomSheetMenu()
                         true
                     } else {
-                        Toast.makeText(this, getString(R.string.image_not_added), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            getString(R.string.image_not_added),
+                            Toast.LENGTH_SHORT)
+                            .show()
                         true
                     }
                 }

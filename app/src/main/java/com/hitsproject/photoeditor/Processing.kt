@@ -1,26 +1,23 @@
 package com.hitsproject.photoeditor
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.Paint
+import android.util.Log
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import kotlinx.coroutines.Dispatchers
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.ceil
-import kotlin.math.sin
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import android.util.Log
-import kotlinx.coroutines.*
+import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.cos
+import kotlin.math.sin
 
 class Processing {
     fun resize(bitmap: Bitmap, coefficient: Double): Bitmap {

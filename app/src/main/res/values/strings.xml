@@ -9,4 +9,6 @@
     <string name="unsharp_mask">Маскирование</string>
     <string name="show_photoeditor">Обработка</string>
     <string name="image_not_added">Изображение не добавлено или добавлено некорректно.</string>
+    <string name="save_in_process">Сохранение изображения, подождите...</string>
+    <string name="saving_success">Изображение сохранено успешно:</string>
 </resources>
