@@ -3,6 +3,7 @@ package com.hitsproject.photoeditor
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import org.opencv.android.OpenCVLoader
 
 lateinit var image: Bitmap
 var isAdded: Boolean = false
@@ -103,6 +105,17 @@ class MainActivity : AppCompatActivity() {
 
         bottomSheetDialog.findViewById<TextView>(R.id.negative_filter_item)?.setOnClickListener {
             image = process.applyNegativeFilter(image)
+            updateImageView()
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.findViewById<TextView>(R.id.detect_faces_item)?.setOnClickListener {
+            if (!OpenCVLoader.initDebug()) {
+                Log.e("OpenCV", "OpenCV initialization failed.")
+            } else {
+                Log.d("OpenCV", "OpenCV initialization successful.")
+            }
+            image = process.detectFaces(image, this)
             updateImageView()
             bottomSheetDialog.dismiss()
         }

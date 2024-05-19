@@ -46,5 +46,11 @@
         android:padding="16dp"
         android:text="@string/navigation_negative" />
 
+    <TextView
+        android:id="@+id/detect_faces_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:text="@string/navigation_detect_faces"/>
 
 </LinearLayout>

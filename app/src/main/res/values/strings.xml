@@ -12,4 +12,5 @@
     <string name="save_in_process">Сохранение изображения, подождите...</string>
     <string name="saving_success">Изображение сохранено успешно: </string>
     <string name="save_to_storage">Сохранить</string>
+    <string name="navigation_detect_faces">Распознавание лиц</string>
 </resources>

@@ -1,8 +1,10 @@
 package com.hitsproject.photoeditor
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
-import android.util.Log
+import android.graphics.Paint
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -14,6 +16,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.opencv.android.Utils
+import org.opencv.core.Mat
+import org.opencv.core.MatOfRect
+import org.opencv.objdetect.CascadeClassifier
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -297,5 +306,59 @@ class Processing {
         val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         result.setPixels(tempPixels, 0, width, 0, 0, width, height)
         return result
+    }
+
+    fun loadFaceDetector(context: Context): CascadeClassifier {
+        val inputStream = context.resources.openRawResource(R.raw.haarcascade_frontalface_alt2)
+        val cascadeDir = context.filesDir
+        val cascadeFile = File(cascadeDir, "haarcascade_frontalface_alt2.xml")
+
+        try {
+            FileOutputStream(cascadeFile).use { outputStream ->
+                val buffer = ByteArray(4096)
+                var bytesRead: Int
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        val faceDetector = CascadeClassifier(cascadeFile.absolutePath)
+        if (faceDetector.empty()) {
+            faceDetector.load(null)
+        }
+
+        return faceDetector
+    }
+
+    fun detectFaces(bitmap: Bitmap, context: Context): Bitmap {
+        val faceDetector = loadFaceDetector(context)
+
+        val image = Mat()
+        Utils.bitmapToMat(bitmap, image)
+
+        val faceDetections = MatOfRect()
+        faceDetector.detectMultiScale(image, faceDetections)
+
+        val resultBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(resultBitmap)
+        val paint = Paint()
+        paint.color = Color.RED
+        paint.strokeWidth = 4f
+        paint.style = Paint.Style.STROKE
+
+        for (rect in faceDetections.toArray()) {
+            canvas.drawRect(
+                rect.x.toFloat(),
+                rect.y.toFloat(),
+                (rect.x + rect.width).toFloat(),
+                (rect.y + rect.height).toFloat(),
+                paint
+            )
+        }
+
+        return resultBitmap
     }
 }
