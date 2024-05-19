@@ -145,20 +145,22 @@ class Processing {
 
         runBlocking {
             coroutineScope {
-                for (y in 0 until rotatedHeight) {
+                (0 until rotatedHeight).chunked(4).forEach { yRange ->
                     launch {
-                        for (x in 0 until rotatedWidth) {
-                            val dx = x - rotatedWidth / 2
-                            val dy = y - rotatedHeight / 2
+                        yRange.forEach { y ->
+                            (0 until rotatedWidth).forEach { x ->
+                                val dx = x - rotatedWidth / 2
+                                val dy = y - rotatedHeight / 2
 
-                            val srcX = (dx * cosAngle + dy * sinAngle + centerX).toInt()
-                            val srcY = (-dx * sinAngle + dy * cosAngle + centerY).toInt()
+                                val srcX = (dx * cosAngle + dy * sinAngle + centerX).toInt()
+                                val srcY = (-dx * sinAngle + dy * cosAngle + centerY).toInt()
 
-                            if (srcX in 0 until width && srcY in 0 until height) {
-                                val index = srcY * width + srcX
-                                rotatedImage.setPixel(x, y, pixels[index])
-                            } else {
-                                rotatedImage.setPixel(x, y, 0)
+                                if (srcX in 0 until width && srcY in 0 until height) {
+                                    val index = srcY * width + srcX
+                                    rotatedImage.setPixel(x, y, pixels[index])
+                                } else {
+                                    rotatedImage.setPixel(x, y, 0)
+                                }
                             }
                         }
                     }
