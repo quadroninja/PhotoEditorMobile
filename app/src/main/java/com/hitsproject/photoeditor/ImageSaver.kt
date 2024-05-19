@@ -21,7 +21,7 @@ class ImageSaver {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
         fos.close()
         toast = Toast.makeText(context,
-                          context.getString(R.string.saving_success) + {imageFile.absolutePath},
+                          context.getString(R.string.saving_success) + imageFile.absolutePath,
                                Toast.LENGTH_LONG)
         toast.show()
     }

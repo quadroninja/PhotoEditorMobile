@@ -122,7 +122,6 @@ class Processing {
             }
         }
 
-        Log.d("Resize","Resizing bitmap from ${bitmap.width}x${bitmap.height} to ${width}x$height")
         return newBitmap
     }
 
@@ -166,7 +165,6 @@ class Processing {
                 }
             }
         }
-        Log.d("Rotate"," bitmap from ${image.width}x${image.height} to ${rotatedWidth}x$rotatedHeight")
         return rotatedImage
     }
 
@@ -248,7 +246,7 @@ class Processing {
                                 for (dx in -1..1) {
                                     val xx = x + dx
                                     val yy = y + dy
-                                    if (xx >= 0 && xx < width && yy >= 0 && yy < height) {
+                                    if (xx in 0..<width && yy >= 0 && yy < height) {
                                         val pixel = pixels[yy * width + xx]
                                         r += Color.red(pixel)
                                         g += Color.green(pixel)

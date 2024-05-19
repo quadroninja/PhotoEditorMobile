@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var process: Processing
     private lateinit var save: ImageSaver
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -33,12 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         val addPhotoButton = findViewById<FloatingActionButton>(R.id.AddPhoto)
         addPhotoButton.setOnClickListener {
-            if (!isAdded) photoPicker.pickPhoto(this)
-            else {
-                isAdded = false
-                save.saveImageToDevice(this, image, "newImage")
-                photoPicker.pickPhoto(this)
-            }
+            photoPicker.pickPhoto(this)
         }
 
         val navigation = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -58,6 +52,15 @@ class MainActivity : AppCompatActivity() {
                             .show()
                         true
                     }
+                }
+                R.id.saving -> {
+                    if (isAdded) save.saveImageToDevice(this, image, "newImage")
+                    else Toast.makeText(
+                        this,
+                        getString(R.string.image_not_added),
+                        Toast.LENGTH_SHORT)
+                        .show()
+                    true
                 }
                 else -> false
             }

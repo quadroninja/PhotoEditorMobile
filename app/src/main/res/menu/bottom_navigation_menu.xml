@@ -4,4 +4,9 @@
         android:id="@+id/show_bottom_sheet"
         android:icon="@drawable/ic_bw"
         android:title="@string/show_photoeditor" />
+
+    <item
+        android:id="@+id/saving"
+        android:icon="@drawable/download"
+        android:title="@string/save_to_storage"/>
 </menu>
