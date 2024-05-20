@@ -308,10 +308,10 @@ class Processing {
         return result
     }
 
-    fun loadFaceDetector(context: Context): CascadeClassifier {
-        val inputStream = context.resources.openRawResource(R.raw.haarcascade_frontalface_alt2)
+    private fun loadFaceDetector(context: Context): CascadeClassifier {
+        val inputStream = context.resources.openRawResource(R.raw.haarcascade_frontalface_alt_tree)
         val cascadeDir = context.filesDir
-        val cascadeFile = File(cascadeDir, "haarcascade_frontalface_alt2.xml")
+        val cascadeFile = File(cascadeDir, "haarcascade_frontalface_alt_tree.xml")
 
         try {
             FileOutputStream(cascadeFile).use { outputStream ->
@@ -358,7 +358,6 @@ class Processing {
                 paint
             )
         }
-
         return resultBitmap
     }
 }
