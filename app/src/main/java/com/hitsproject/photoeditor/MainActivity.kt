@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                 }
+
                 R.id.saving -> {
                     if (isAdded) save.saveImageToDevice(this, image, "newImage")
                     else Toast.makeText(
@@ -82,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                     true
                 }
+
                 else -> false
             }
         }

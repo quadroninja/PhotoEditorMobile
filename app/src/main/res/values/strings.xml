@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Photo Editor</string>
+    <string name="app_name">Редактор</string>
     <string name="head_first_page">Photo Picker</string>
     <string name="rotate_name">Повернуть</string>
     <string name="navigation_bw">Черно-белый</string>
@@ -15,5 +15,5 @@
     <string name="navigation_detect_faces">Распознавание лиц</string>
     <string name="image_view_content_description">Изображение</string>
     <string name="add_photo_button_description">Добавить изображение</string>
-    <string name="apply_changes_content_description">Apply changes</string>
+    <string name="apply_changes_content_description">Применить изменения</string>
 </resources>
