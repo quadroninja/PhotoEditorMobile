@@ -135,6 +135,7 @@ class Processing {
     }
 
     fun rotate(image: Bitmap, angle: Double): Bitmap {
+
         val width = image.width
         val height = image.height
         val centerX = width / 2

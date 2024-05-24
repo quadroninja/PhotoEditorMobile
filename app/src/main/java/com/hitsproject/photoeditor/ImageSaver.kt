@@ -16,7 +16,7 @@ class ImageSaver {
         if (!imageDirectory.exists()) {
             imageDirectory.mkdirs()
         }
-        val imageFile = File(imageDirectory, "$imageName.jpg")
+        val imageFile = File(imageDirectory, "$imageName.png")
         val fos = FileOutputStream(imageFile)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
         fos.close()

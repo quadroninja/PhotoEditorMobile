@@ -13,4 +13,7 @@
     <string name="saving_success">Изображение сохранено успешно: </string>
     <string name="save_to_storage">Сохранить</string>
     <string name="navigation_detect_faces">Распознавание лиц</string>
+    <string name="image_view_content_description">Изображение</string>
+    <string name="add_photo_button_description">Добавить изображение</string>
+    <string name="apply_changes_content_description">Apply changes</string>
 </resources>
